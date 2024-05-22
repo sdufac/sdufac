@@ -414,7 +414,7 @@
 		alpha="0"
 		/>
 
-		<hotspot  name="hs43" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published4/NewProject4.html, 800, 800, false);">
+		<hotspot  name="hs43" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',./published4/NewProject4.html, 800, 800, false);">
 			<point ath="101.66652978456591" atv="-2.919468701492112" />
 			<point ath="107.85792659963465" atv="-7.932049598131666" />
 			<point ath="115.88127301156129" atv="-2.2280774334687727" />
@@ -599,7 +599,7 @@
 
 		
 
-		<hotspot name="sac_violet" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/9/NewProject2/published/test.html, 800, 800, false);">
+		<hotspot name="sac_violet" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',./published/test.html, 800, 800, false);">
 			<point ath="-122" atv="6" />
 			<point ath="-117" atv="7" />
 			<point ath="-116" atv="16" />
@@ -610,7 +610,7 @@
 
 		<hotspot name="a360_4" style="hs_360" ath="-125" atv="15"/>
 
-		<hotspot  name="hs1" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published1/NewProject1.html, 800, 800, false);">
+		<hotspot  name="hs1" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',./published1/NewProject1.html, 800, 800, false);">
 			<point ath="-162" atv="17" />
 			<point ath="-140.11368491679968" atv="17.83718559826922" />
 			<point ath="-132.2650467533852" atv="45.72485268824486" />
@@ -621,7 +621,7 @@
 
 		<hotspot name="a360_2" style="hs_360" ath="-154" atv="35"/>
 
-		<hotspot  name="hs2" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published3/3.html, 800, 800, false);">
+		<hotspot  name="hs2" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',./published3/3.html, 800, 800, false);">
 			<point ath="-112" atv="-30" />
 			<point ath="-114" atv="-38" />
 			<point ath="-132" atv="-39" />
