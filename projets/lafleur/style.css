@@ -1,0 +1,11 @@
+#menu{
+    background-color: cadetblue;
+    color: coral;
+}
+.gauche{
+    text-align: left;    
+}
+.centre{
+    text-align: center;
+    color: red;
+}
