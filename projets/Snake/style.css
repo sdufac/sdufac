@@ -1,0 +1,16 @@
+td{
+    width: 55px;
+    height: 55px;
+}
+
+table{
+    border: 5px solid;
+    border-color: brown; 
+    margin-left: auto;
+    margin-right: auto;
+    background-image: url(image/grass.png);
+}
+div#score{
+    text-align: center;
+    font-size: x-large;
+}

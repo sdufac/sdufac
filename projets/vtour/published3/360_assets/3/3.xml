@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <settings>
+    <preloader image="images/_MGL1759.png?t=1712310444" />
+    <userInterface showZoomButtons="true" showToolTips="true" showHotspotsButton="true" showFullScreenButton="true" showTogglePlayButton="true" showArrows="true" toolbarAlign="center" toolbarBackColor="transparent" toolbarHoverColor="#808285" toolbarForeColor="#A7A9AE" toolbarBackAlpha="0" toolbarAlpha="1" showProgressNumbers="true" showFullScreenToolbar="false" fullScreenBackColor="#FFFFFF" toolbarPosition="0" customCursorClass="default_cursor" viewerHint="" toolbarAutohide="false" showToolbarOnLoadStart="false" />
+    <control dragSpeed="0.13" doubleClickZooms="true" disableMouseControl="false" showHighresOnFullScreen="true" mouseHoverDrag="false" hideHotspotsOnLoad="false" hideHotspotsOnZoom="true" rowSensitivity="15" dragSensitivity="10" inBrowserFullScreen="false" doubleClickFullscreen="false" zoomSteps="1" zoomSpeed="300" singleClickZooms="false" pauseOnPreload="false" resumePreloadOnHover="false" mouseWheelDrag="false" mouseWheelDragZoomOnly="false" allowRotateInputInZoom="false" allowPanX="true" allowPanY="true" />
+    <rotation firstImage="0" rotate="false" rotatePeriod="7" bounce="false" rotateDirection="-1" forceDirection="false" inertiaRelToDragSpeed="true" inertiaTimeToStop="700" inertiaMaxInterval="120" useInertia="true" flipHorizontalInput="false" flipVerticalInput="false" bounceRows="true" rowsOnSingleIndex="false" flipAxis="false" />
+  </settings>
+  <hotspots />
+  <images rows="1" highresWidth="2000" highresHeight="1333">
+    <image src="images/_MGL1759.png?t=1712310444">
+      <highres src="images/highres/_MGL1759.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1760.png?t=1712310444">
+      <highres src="images/highres/_MGL1760.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1761.png?t=1712310444">
+      <highres src="images/highres/_MGL1761.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1762.png?t=1712310444">
+      <highres src="images/highres/_MGL1762.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1763.png?t=1712310444">
+      <highres src="images/highres/_MGL1763.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1764.png?t=1712310444">
+      <highres src="images/highres/_MGL1764.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1765.png?t=1712310444">
+      <highres src="images/highres/_MGL1765.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1766.png?t=1712310444">
+      <highres src="images/highres/_MGL1766.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1767.png?t=1712310444">
+      <highres src="images/highres/_MGL1767.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1768.png?t=1712310444">
+      <highres src="images/highres/_MGL1768.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1769.png?t=1712310444">
+      <highres src="images/highres/_MGL1769.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1770.png?t=1712310444">
+      <highres src="images/highres/_MGL1770.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1771.png?t=1712310444">
+      <highres src="images/highres/_MGL1771.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1772.png?t=1712310444">
+      <highres src="images/highres/_MGL1772.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1773.png?t=1712310444">
+      <highres src="images/highres/_MGL1773.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1774.png?t=1712310444">
+      <highres src="images/highres/_MGL1774.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1775.png?t=1712310444">
+      <highres src="images/highres/_MGL1775.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1776.png?t=1712310444">
+      <highres src="images/highres/_MGL1776.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1777.png?t=1712310444">
+      <highres src="images/highres/_MGL1777.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1778.png?t=1712310444">
+      <highres src="images/highres/_MGL1778.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1779.png?t=1712310444">
+      <highres src="images/highres/_MGL1779.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1780.png?t=1712310444">
+      <highres src="images/highres/_MGL1780.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1781.png?t=1712310444">
+      <highres src="images/highres/_MGL1781.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1782.png?t=1712310444">
+      <highres src="images/highres/_MGL1782.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1783.png?t=1712310444">
+      <highres src="images/highres/_MGL1783.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1784.png?t=1712310444">
+      <highres src="images/highres/_MGL1784.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1785.png?t=1712310444">
+      <highres src="images/highres/_MGL1785.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1786.png?t=1712310444">
+      <highres src="images/highres/_MGL1786.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1787.png?t=1712310444">
+      <highres src="images/highres/_MGL1787.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1788.png?t=1712310444">
+      <highres src="images/highres/_MGL1788.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1789.png?t=1712310444">
+      <highres src="images/highres/_MGL1789.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1790.png?t=1712310444">
+      <highres src="images/highres/_MGL1790.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1791.png?t=1712310444">
+      <highres src="images/highres/_MGL1791.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1792.png?t=1712310444">
+      <highres src="images/highres/_MGL1792.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1793.png?t=1712310444">
+      <highres src="images/highres/_MGL1793.png?t=1712310444" />
+    </image>
+    <image src="images/_MGL1794.png?t=1712310444">
+      <highres src="images/highres/_MGL1794.png?t=1712310444" />
+    </image>
+  </images>
+</config>

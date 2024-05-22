@@ -1,0 +1,819 @@
+﻿<krpano version="1.20.9" title="Virtual Tour">
+
+	<include url="skin/vtourskin.xml" />
+	<include url="toolbox/toolbox.xml"/>
+	<script src="tour.js"></script>
+	<include url="plugins/iphone_fullscreen_swipe.xml" />
+	<include url="plugins/swipe_gallery.xml" />
+
+	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
+	<skin_settings maps="false"
+	               maps_type="google"
+	               maps_bing_api_key=""
+	               maps_google_api_key=""
+	               maps_zoombuttons="false"
+	               maps_loadonfirstuse="true"
+	               gyro="true"
+	               gyro_keeplookingdirection="false"
+	               webvr="true"
+	               webvr_keeplookingdirection="true"
+	               webvr_prev_next_hotspots="true"
+	               autotour="false"
+	               littleplanetintro="false"
+	               followmousecontrol="false"
+	               title="true"
+	               thumbs="true"
+	               thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
+	               thumbs_opened="false"
+	               thumbs_text="false"
+	               thumbs_dragging="true"
+	               thumbs_onhoverscrolling="false"
+	               thumbs_scrollbuttons="false"
+	               thumbs_scrollindicator="false"
+	               thumbs_loop="false"
+	               tooltips_buttons="false"
+	               tooltips_thumbs="false"
+	               tooltips_hotspots="false"
+	               tooltips_mapspots="false"
+	               deeplinking="false"
+	               loadscene_flags="MERGE"
+	               loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)"
+	               loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)"
+	               loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)"
+	               loadingtext=""
+	               layout_width="100%"
+	               layout_maxwidth="814"
+	               controlbar_width="-24"
+	               controlbar_height="40"
+	               controlbar_offset="20"
+	               controlbar_offset_closed="-40"
+	               controlbar_overlap.no-fractionalscaling="10"
+	               controlbar_overlap.fractionalscaling="0"
+	               design_skin_images="vtourskin.png"
+	               design_bgcolor="0x2D3E50"
+	               design_bgalpha="0.8"
+	               design_bgborder="0"
+	               design_bgroundedge="1"
+	               design_bgshadow="0 4 10 0x000000 0.3"
+	               design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+	               design_thumbborder_padding="2"
+	               design_thumbborder_bgroundedge="0"
+	               design_text_css="color:#FFFFFF; font-family:Arial;"
+	               design_text_shadow="1"
+	               />
+
+	<!--
+	    For an alternative skin design either change the <skin_settings> values 
+	    from above or optionally include one of the predefined designs from below.
+	-->
+	<!-- <include url="skin/vtourskin_design_flat_light.xml"  /> -->
+	<!-- <include url="skin/vtourskin_design_glass.xml"       /> -->
+	<!-- <include url="skin/vtourskin_design_ultra_light.xml" /> -->
+	<!-- <include url="skin/vtourskin_design_117.xml"         /> -->
+	<!-- <include url="skin/vtourskin_design_117round.xml"    /> -->
+	<!-- <include url="skin/vtourskin_design_black.xml"       /> -->
+
+
+	<!-- startup action - load the first scene -->
+	<action name="startup" autorun="onstart">
+		showlog();
+		if(startscene === null OR !scene[get(startscene)], copy(startscene,scene[0].name); );
+		loadscene(get(startscene), null, MERGE);
+		if(startactions !== null, startactions() );
+	</action>
+
+	<!--POPUP-->
+	<action name="add_html_code" type="Javascript">
+		<![CDATA[
+			var div = document.createElement("div");
+	
+			// basic styles to fit into the layer size and allow scrolling:
+			div.style.width = "100%";
+			div.style.height = "100%";
+			div.style.boxSizing = "border-box";
+			div.style.overflow = args[2] == "true" ? "auto" : "hidden";
+	
+			// allow text selection (optional):
+			div.style.webkitUserSelect =
+			div.style.MozUserSelect =
+			div.style.msUserSelect =
+			div.style.userSelect = "text";
+	
+			function stopPropagation(e){ e.stopPropagation(); }
+			function preventDefault(e){ e.preventDefault(); }
+	
+			// enable browsed-based mouse-wheel and touch-scrolling support:
+			div.addEventListener("wheel", stopPropagation, true);
+			div.addEventListener("mousewheel", stopPropagation, true);
+			div.addEventListener("DOMMouseScroll", stopPropagation, true);
+			div.addEventListener("touchstart", function(event){ if(krpano.device.ios && window.innerHeight == krpano.display.htmltarget.offsetHeight){ /* avoid the iOS 'overscrolling' for fullpage viewers */ var bs = document.body.parentNode.style; bs.position="fixed"; bs.top=0; bs.left=0; bs.right=0; bs.bottom=0; } krpano.control.preventTouchEvents = false; event.stopPropagation(); }, true);
+			div.addEventListener("touchend", function(event){ krpano.control.preventTouchEvents = true; event.stopPropagation(); }, true);
+			div.addEventListener("gesturestart", preventDefault, true);
+	
+			// add the html code:
+			div.innerHTML = args[1];
+	
+			// add the div to the layer element:
+			caller.sprite.appendChild(div);
+		]]>
+	</action>
+	
+	<action name="popup" scope="private:POPUP" args="type, content, width, height, scrollbars, onclose_callback"><![CDATA[
+		if(popup, break(); );
+		
+		addlayer('popup_bg', popup_bg);
+		set(popup_bg,
+			type=container,
+			align=lefttop, width=100%, height=100%,
+			zorder=99,
+			handcursor=false,
+			bgcapture=true,
+			capture=false,
+			//bgcolor=0x123456, onloaded='tween(bgalpha,0.3,1.0);',	// optional: colorize the background
+			onclick='popup_close()'
+		);
+			
+		
+		addlayer('popup', popup);
+		set(popup,
+			type=container,
+			parent='popup_bg',
+			width=calc(min(width,global.stagewidth*0.9)),
+			height=calc(min(height,global.stageheight*0.8)),
+			align=center,
+			bgborder='1 0x555555 1',
+			bgcolor=0x555555,
+			bgalpha=0.7,
+			bgshadow='0 10 20 0x000000 0.5',
+			bgcapture=true,
+			maskchildren=false,
+			capture=true,
+			handcursor=false,
+			alpha=0
+		);
+		skin_hideskin('instant');
+		if(type == 'html',
+			set(popup.type, html);
+			copy(popup.html, content);
+			copy(popup.htmlscrollbars, scrollbars);
+
+			,type == 'iframe',
+			calc(popup.datacontent, '<iframe style="position:absolute;width:100%;height:100%;top:0px;left:0px;" src="'+content+'" frameborder="0" allowfullscreen></iframe>');
+			calc(popup.onloaded, 'add_html_code(get(datacontent),'+scrollbars+');');
+
+		  ,type == 'image',
+		 	set(popup,
+		 		bgcolor=0xFFFFFF,
+		 		bgalpha=1,
+		 	);
+			addlayer("popup_image", img);
+			set(img,
+				url=get(content),
+				align=center,
+				width=-20, height=-20,
+				parent=get(popup.name),
+				onloaded='popup_imageloaded()'
+			);
+		);
+
+		tween(global.plugin[pp_blur].range, 40.0);
+		delayedcall(0.2, tween(global.layer[popup].alpha, 1.0); );
+
+		// events when the popup should get closed automatically
+		set(global.events[popup].onremovepano, popup_close() );
+	]]></action>
+	
+	
+	<action name="popup_close" scope="private:POPUP">
+		if (onclose_callback,
+			callback = onclose_callback;
+			onclose_callback = null;
+			scope(global, get(callback) );
+		);
+		
+		set(global.plugin[popup_bg].enabled, false);
+		set(global.events[popup].name, null);
+		tween(global.plugin[pp_blur].range, 0.0);
+		tween(global.layer[popup_bg].bgalpha, 0.0, 0.25);
+		tween(global.layer[popup].alpha, 0.0, 0.25, default,
+			removelayer('popup_bg', true);
+			scope(private:POPUP, delete(popup); );
+		);
+		skin_showskin('instant');
+	</action>
+	<!--FIN POPUP-->
+
+	<!--INFOBULLE-->
+	
+	<action name="open">
+		set(activeHotspot,%1);
+		trace('activeHotspot=', activeHotspot);
+
+		set(control.usercontrol,off);
+		lookto(get(hotspot[%1].ath),get(hotspot[%1].atv));
+
+		set(hotspot[%1].onclick,close(%1));
+
+		def(screenratioh,number);                      
+		mul(screenratioh,get(stageheight),1);
+		roundval(screenratioh);
+
+		def(screenratiow,number);                      
+		mul(screenratiow,get(stagewidth),1);
+		roundval(screenratiow);
+
+		if(stageheight LT stagewidth,
+			set(hotspot[%1].height,get(screenratioh));
+			set(hotspot[%1].width,prop);
+			,
+			set(hotspot[%1].width,get(screenratiow));
+			set(hotspot[%1].height,prop);
+		);
+
+		
+
+		set(hotspot[%1].visible,true);
+		set(hotspot[%1].disabled,false);
+		tween(hotspot[%1].alpha,1,0.5);
+		tween(hotspot[%1].scale,1,0.5);
+
+		skin_hideskin('instant');
+		set(autorotate.enabled,false);
+		delayedcall(0.2, tween(global.layer[popup].alpha, 1.0); );
+	</action>
+
+	<action name="close">
+		set(control.usercontrol,all);
+		
+
+		set(activeHotspot,'null');
+		trace('activeHotspot=', activeHotspot);
+
+		tween(hotspot[%1].scale,0.1,0.5);
+		tween(hotspot[%1].alpha,0,0.5);
+		tween(hotspot[%1].ry,0);
+		delayedcall(0.5,
+   		set(hotspot[%1].visible,false);
+		set(hotspot[%1].disabled,true);
+  		);
+		
+		set(control.usercontrol, 'all');	
+		skin_showskin('instant');
+		set(autorotate.enabled,true);
+		skin_showthumbs();
+		
+	</action>
+
+	<action name="change_scene" scope="local">
+		if(isvalue(caller.linkedscene),
+			copy(hs_linkedscene, caller.linkedscene);
+			set(caller.enabled, false);
+			skin_hidetooltips();
+			tween(caller.depth|caller.alpha|caller.oy|caller.rx, 4000|0.0|-50|-60, 0.5, default,
+				skin_loadscene(get(hs_linkedscene), get(skin_settings.loadscene_blend));
+				if(hs_lookat_h !== null, skin_lookat(get(hs_lookat_h), get(hs_lookat_v), get(hs_lookat_fov)); );
+				skin_updatescroll();
+			);
+		);
+	</action>
+	
+	<style name="infobulle_hotspot"
+	type="image"
+	url="skin/information.png"
+	keep="false"
+	visible="true"
+	enabled="true"
+	handcursor="true"
+	maskchildren="false"
+	edge="center"
+	scale="0.5"
+	alpha="1.0"
+	zorder="1"
+	/>
+
+	<style name="infobulle_image"
+	distorted="false"
+	type="image"
+	edge="center"
+	scale="0.5"
+	zorder="2"
+	/>
+	<!--FIN INFOBULLE-->
+
+	<!--GALLERY-->
+	<style name="hs_gallery"
+		scale="0.5"
+        url="skin/information.png"
+        onclick="show_gallery(get(galleryname))"
+        onhover="showtext(get(gallery[get(galleryname)].title))"
+    />
+
+	<action name="hs_animation">
+		tween(hotspot[get(name)].scale, 0.9 ,0.5 ,easeinquart, tween(hotspot[get(name)].scale, 0.7 ,0.5 ,easeoutquart,hs_animation()));
+	</action>
+
+	<style name="hs_360"
+		scale="0.7"
+		onloaded="hs_animation"
+		url="skin/360.png"
+		enabled="false"
+	/>
+
+	<events onresize="make_gallery(get(activeGallery));"/>
+
+	<layer name="gallery" type="container" align="center" width="80%" height="80%" alpha="0" autoalpha="true" bgcolor="0x000000" bgalpha="0.8" keep="true">
+		<layer name="gallery_scrollarea" url="%SWFPATH%/plugins/scrollarea.swf" alturl="%SWFPATH%/plugins/scrollarea.js" keep="true" align="left" width="0" height="100%" zorder="1" direction="h" ondown="set(gallery_scrollarea_start_pos, get(x))">
+		</layer>
+		<layer name="arrow_left"  align="left"  x="10" keep="true" visible="false" zorder="2" onclick="move_image(left)" url="img/arrow_left.png"  />
+		<layer name="arrow_right" align="right" x="10" keep="true" visible="false" zorder="2" onclick="move_image(right)" url="img/arrow_right.png" />
+		<layer name="gallery_close" align="righttop" x="10" y="10" keep="true" zorder="2" onclick="hide_gallery()" url="img/close.png" />
+	</layer>
+
+	<gallery name="gallery1" title="Galerie 1">
+		<img name="img1" url="images/_MGL8306.png" title="Escalator"/>
+		<img name="img2" url="images/_MGL8307.png" title="Mask" />
+	</gallery>
+
+	<gallery name="gallery2" title="Galerie 2">
+		<img name="img1" url="images/_MGL8296.png" title="Escalator"/>
+		<img name="img2" url="images/_MGL8297.png" title="Mask" />
+	</gallery>
+	<!--FIN GALLERY-->
+
+	<scene name="scene_pano1" title="pano1" onstart="" thumburl="panos/pano1.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<hotspot  name="hs1" style="" linkedscene="scene_pano2" onclick="change_scene()" fillalpha="0.0" borderalpha="0.0">
+			<point ath="-63.45302623493876" atv="-11.484025657006717" />
+			<point ath="-52.586809774890696" atv="-11.545321961649748" />
+			<point ath="-52.27154673226124" atv="18.680840712650312" />
+			<point ath="-63.39414328402785" atv="19.4691513948978" />
+		</hotspot>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano1.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano1.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+	</scene>
+
+	<scene name="scene_pano2" title="pano2" onstart="" thumburl="panos/pano2.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano2.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano2.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-86.141" atv="32.943" linkedscene="scene_pano3" />
+
+	</scene>
+
+	<scene name="scene_pano3" title="pano3" onstart="" thumburl="panos/pano3.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano3.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano3.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-140.363" atv="40.508" linkedscene="scene_pano12" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-70.753" atv="33.793" linkedscene="scene_pano11" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="-11.620" atv="35.327" linkedscene="scene_pano4" />
+
+	</scene>
+
+	<scene name="scene_pano4" title="pano4" onstart="" thumburl="panos/pano4.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<hotspot
+		name="infobulle_hs1"
+		style="infobulle_hotspot"
+		onclick="open(logo)"
+		ath="-60.000" atv="25.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo"
+		url="images/_MGL8290.png"
+		height=""
+		width=""
+		ath="-60.000" atv="25.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot  name="hs43" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published4/NewProject4.html, 800, 800, false);">
+			<point ath="101.66652978456591" atv="-2.919468701492112" />
+			<point ath="107.85792659963465" atv="-7.932049598131666" />
+			<point ath="115.88127301156129" atv="-2.2280774334687727" />
+			<point ath="113.0012269980617" atv="24.129443209164233" />
+			<point ath="101.22580783911363" atv="22.468488577791334" />
+		</hotspot>
+
+		<hotspot name="a360_1" style="hs_360" ath="106" atv="6"/>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano4.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano4.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-5.281" atv="41.800" linkedscene="scene_pano5" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="178.064" atv="43.286" linkedscene="scene_pano3" />
+
+	</scene>
+
+	<scene name="scene_pano5" title="pano5" onstart="" thumburl="panos/pano5.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano5.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano5.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-76.350" atv="31.878" linkedscene="scene_pano6" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-167.791" atv="39.956" linkedscene="scene_pano4" />
+
+	</scene>
+
+	<scene name="scene_pano6" title="pano6" onstart="" thumburl="panos/pano6.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano6.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano6.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-54.006" atv="35.460" linkedscene="scene_pano7" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="129.419" atv="31.011" linkedscene="scene_pano5" />
+
+	</scene>
+
+	<scene name="scene_pano7" title="pano7" onstart="" thumburl="panos/pano7.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano7.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano7.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-14.008" atv="40.822" linkedscene="scene_pano8" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="166.615" atv="25.819" linkedscene="scene_pano6" />
+
+	</scene>
+
+	<scene name="scene_pano8" title="pano8" onstart="" thumburl="panos/pano8.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano8.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano8.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="85.153" atv="27.690" linkedscene="scene_pano9" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="23.711" atv="30.778" linkedscene="scene_pano7" />
+
+	</scene>
+
+	<scene name="scene_pano9" title="pano9" onstart="" thumburl="panos/pano9.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano9.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano9.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-165.090" atv="29.669" linkedscene="scene_pano16" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-14.021" atv="26.629" linkedscene="scene_pano8" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="90.759" atv="35.482" linkedscene="scene_pano10" />
+
+		<hotspot
+		name="infobulle_hs3"
+		style="infobulle_hotspot"
+		onclick="open(logo3)"
+		ath="-98.000" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo3"
+		url="images/_MGL8207b.png"
+		height=""
+		width=""
+		ath="-98" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+	</scene>
+
+	<scene name="scene_pano10" title="pano10" onstart="" thumburl="panos/pano10.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano10.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano10.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-171.530" atv="39.874" linkedscene="scene_pano11" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="7.421" atv="38.288" linkedscene="scene_pano9" />
+
+	</scene>
+
+	<scene name="scene_pano11" title="pano11" onstart="" thumburl="panos/pano11.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano11.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano11.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-159.542" atv="35.919" linkedscene="scene_pano3" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="12.878" atv="38.095" linkedscene="scene_pano10" />
+
+	</scene>
+
+	<scene name="scene_pano12" title="pano12" onstart="" thumburl="panos/pano12.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<hotspot  name="hs1" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published2/NewProject2.html, 800, 800, false);">
+			<point ath="156.000" atv="-15.000" />
+			<point ath="173.97819283734557" atv="-15.196433895683418" />
+			<point ath="174.72445900513645" atv="40.545414690715965" />
+			<point ath="156.71515108978656" atv="43.01622427863143" />
+		</hotspot>
+
+		<hotspot name="a360_2" style="hs_360" ath="166" atv="5"/>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano12.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano12.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-113.919" atv="45.683" linkedscene="scene_pano13" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="89.128" atv="50.201" linkedscene="scene_pano3" />
+
+	</scene>
+
+	<scene name="scene_pano13" title="pano13" onstart="" thumburl="panos/pano13.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		
+
+		<hotspot name="sac_violet" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/9/NewProject2/published/test.html, 800, 800, false);">
+			<point ath="-122" atv="6" />
+			<point ath="-117" atv="7" />
+			<point ath="-116" atv="16" />
+			<point ath="-128" atv="22" />
+			<point ath="-137" atv="20" />
+			<point ath="-137" atv="8" />
+		</hotspot>
+
+		<hotspot name="a360_4" style="hs_360" ath="-125" atv="15"/>
+
+		<hotspot  name="hs1" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published1/NewProject1.html, 800, 800, false);">
+			<point ath="-162" atv="17" />
+			<point ath="-140.11368491679968" atv="17.83718559826922" />
+			<point ath="-132.2650467533852" atv="45.72485268824486" />
+			<point ath="-130.51393361645933" atv="73.7639608049223" />
+			<point ath="167.6247435949746" atv="66.83421203070036" />
+			<point ath="-171.6141287097448" atv="34.764768835797554" />
+		</hotspot>
+
+		<hotspot name="a360_2" style="hs_360" ath="-154" atv="35"/>
+
+		<hotspot  name="hs2" style="" fillalpha="0.0" borderalpha="0.0" onclick="popup('iframe',file:///C:/Users/greta.2021-PQP-SIO10/Documents/Stage/3D/vtour/published3/3.html, 800, 800, false);">
+			<point ath="-112" atv="-30" />
+			<point ath="-114" atv="-38" />
+			<point ath="-132" atv="-39" />
+			<point ath="-133" atv="-30" />
+		</hotspot>
+
+		<hotspot name="a360_3" style="hs_360" ath="-124" atv="-35"/>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano13.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano13.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="79.166" atv="44.712" linkedscene="scene_pano12" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-54.816" atv="37.444" linkedscene="scene_pano14" />
+
+	</scene>
+
+	<scene name="scene_pano14" title="pano14" onstart="" thumburl="panos/pano14.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano14.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano14.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-179.855" atv="45.872" linkedscene="scene_pano13" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-1.904" atv="36.239" linkedscene="scene_pano15" />
+
+	</scene>
+
+	<scene name="scene_pano15" title="pano15" onstart="" thumburl="panos/pano15.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<hotspot name="hs1" 
+		style="hs_gallery" 
+		ath="-67.000" atv="0.000" 
+		galleryname="gallery1" 
+		/>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano15.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano15.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="177.755" atv="38.833" linkedscene="scene_pano14" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-2.874" atv="42.087" linkedscene="scene_pano16" />
+
+	</scene>
+
+	<scene name="scene_pano16" title="pano16" onstart="" thumburl="panos/pano16.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<hotspot
+		name="infobulle_hs1"
+		style="infobulle_hotspot"
+		onclick="open(logo)"
+		ath="98.000" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo"
+		url="images/_MGL8290.png"
+		height=""
+		width=""
+		ath="98.000" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot
+		name="infobulle_hs2"
+		style="infobulle_hotspot"
+		onclick="open(logo2)"
+		ath="105.000" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo2"
+		url="images/_MGL8289.png"
+		height=""
+		width=""
+		ath="105.000" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot
+		name="infobulle_hs4"
+		style="infobulle_hotspot"
+		onclick="open(logo4)"
+		ath="117" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo4"
+		url="images/_MGL8287.png"
+		height=""
+		width=""
+		ath="117" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot
+		name="infobulle_hs5"
+		style="infobulle_hotspot"
+		onclick="open(logo5)"
+		ath="88" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo5"
+		url="images/_MGL8291.png"
+		height=""
+		width=""
+		ath="88" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot
+		name="infobulle_hs6"
+		style="infobulle_hotspot"
+		onclick="open(logo6)"
+		ath="69" atv="0.000"
+		/>
+
+		<hotspot
+		style="infobulle_image"
+		name="logo6"
+		url="images/_MGL8295.png"
+		height=""
+		width=""
+		ath="69" atv="0.000"
+		disabled="true"
+		visible="false"
+		alpha="0"
+		/>
+
+		<hotspot name="hs2" 
+		style="hs_gallery" 
+		ath="82.000" atv="0.000" 
+		galleryname="gallery2" 
+		/>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano16.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano16.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="14.075" atv="43.618" linkedscene="scene_pano15" />
+		<hotspot name="spot2" style="skin_hotspotstyle" ath="-167.440" atv="37.869" linkedscene="scene_pano17" />
+		<hotspot name="spot3" style="skin_hotspotstyle" ath="-71.125" atv="31.852" linkedscene="scene_pano9" />
+
+	</scene>
+
+	<scene name="scene_pano17" title="pano17" onstart="" thumburl="panos/pano17.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/pano17.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/pano17.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2112,4224" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" ath="-179.564" atv="40.955" linkedscene="scene_pano16" />
+
+	</scene>
+
+
+</krpano>

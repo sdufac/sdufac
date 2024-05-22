@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Black Jack</title>
+</head>
+<body>
+    <div id="menucarte">
+        <input type="text" id="valuecarte">
+        <input type="button" id="cjoueur" value="Piocher joueur" >
+        <input type="button" id="ccroupier" value="Piocher croupier">
+    </div>
+    <br>
+    <div id="menupaquet">
+        Combien de paquets de cartes voulez-vous? :
+        <input type="text" id="nombrepaquets">
+        <input type="button" id="paqueta" value="confirmer">
+        <p id="plimite"></p>
+    </div>
+    <hr>
+    <script type='text/javascript' language='JavaScript' defer>
+
+        
+        var paquets = new Array();
+        paquets.push(0);
+        
+        var mainj = 0;
+        var mainc = 0;
+        
+        var grosAs=false;
+        var grosAs2=false;
+
+        var limite=1;
+        document.getElementById('plimite').innerHTML = limite;
+
+        document.getElementById("paqueta").onclick = function(){
+            limite=document.getElementById("nombrepaquets").value;
+            document.getElementById('plimite').innerHTML = limite;
+            console.log('La limite est'+limite);
+        }
+
+        function paquet(val){
+            paquets.push(val);
+        }
+
+        class carte{
+            constructor(valeur){   
+                this.val=valeur;
+                var carteimage= new Image;
+                if(valeur==52){
+                    carteimage.src="images/"+valeur+".jpg";
+                }
+                else{
+                    carteimage.src="images/"+valeur%52+".jpg";
+                }
+                this.image=carteimage;
+                if(valeur%13==0 || valeur%13==12 || valeur%13==11){
+                    var points = 10;
+                }
+                else
+                {
+                    var points = valeur%13;
+                }
+                this.point=points;
+                
+                this.retourne=false;
+            }
+            //Remplace l'image de la carte par un dos de carte
+            retourner()
+            {
+                if(this.retourne==false){
+                    this.image.src="images/verso.jpg"
+                    this.retourne=true;
+                }            
+                else{
+                    this.image.src="images/"+this.val+".jpg";
+                    this.retourne=false;
+                }
+            }
+            //Fonction qui affiche l'image de la carte dans la div souhaité
+            afficher(location)
+            {
+                document.getElementById(location).appendChild(this.image);
+            }
+        }
+  
+        function piocher(face,div,value)
+        {
+            //Créer une nouvelle carte, retourné ou non, et ajoute les points
+            var carte1 = new carte(value);
+            //Check si la carte est present dans le tableau
+            for(var i in paquets){
+                if(paquets[i]==carte1.val){
+                    piocher(face,div,Math.floor(Math.random() * ((52*limite)*limite))+1);
+                    return undefined;
+                }
+                
+            }
+            //Ajoute la nouvelle carte dans le tableau
+            paquet(carte1.val);
+
+            //As vaut 11 sauf si l'on dépasse 21
+            if(div=='cartejoueur'){   
+                if(carte1.point==1){
+                    if(mainj+11<=21){
+                        carte1.point=11;
+                        grosAs=true;
+                    }
+                }
+            }
+            
+            if(div=='cartecroupier'){   
+                if(carte1.point==1){
+                    if(mainc+11<=21){
+                        carte1.point=11;
+                        grosAs2=true;
+                    }
+                }
+            }
+            
+            if(face=='cache'){
+                carte1.retourner();
+            }
+            if(div=='cartejoueur'){
+                mainj=mainj+carte1.point;
+                document.getElementById('pointjoueur').innerHTML = mainj;
+            }
+            if(div=='cartecroupier'){
+                mainc=mainc+carte1.point;
+                document.getElementById('pointcroupier').innerHTML = mainc;
+            }
+            
+            //Affiche la nouvelle carte
+            carte1.afficher(div);
+            
+            //Check si ça dépasse ou non
+            if(mainj>=21){
+                if(mainj==21){
+                    document.getElementById('perdu').innerHTML = "Black Jack";
+                    hide();
+                }  
+                if(mainj>21){
+                    if(grosAs==true){
+                        mainj=mainj-10;
+                        document.getElementById('pointjoueur').innerHTML = mainj;
+                        grosAs=false;     
+                    }
+                    if(grosAs==false && mainj>21){
+                        document.getElementById('perdu').innerHTML = "Perdu";
+                        hide();
+                    }
+                }
+            }
+        }
+
+        //Quand la partie se lance
+        window.onload = function(){
+            piocher('','cartejoueur',Math.floor(Math.random() * (52*limite))+1);
+            piocher('','cartecroupier',Math.floor(Math.random() * (52*limite))+1);
+        }
+
+        
+
+        function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        //Fonction quand c'est à la banque de jouer
+        async function reste(){
+            //La banque pioche tant qu'elle a une main inferieur au joueur
+            while(mainc<=mainj){
+                await sleep(500)
+                piocher('','cartecroupier',Math.floor(Math.random() * (52*limite))+1);
+            }
+
+            //Check si la banque à gagné ou perdu
+            if(mainc>mainj && mainc<=21)
+            {   
+                if(mainc==21){
+                    document.getElementById('perdu').innerHTML = "Perdu, Black Jack";
+                    hide();
+                }
+                else{
+                    document.getElementById('perdu').innerHTML = "Perdu";
+                    hide();
+                }
+            }   
+            if(mainc>21)
+            {
+                if(grosAs2==true){
+                    mainc=mainc-10;
+                    document.getElementById('pointcroupier').innerHTML = mainc;
+                    grosAs2=false;
+                    reste();
+                }
+                if(grosAs2==false && mainc>21){
+                    document.getElementById('perdu').innerHTML = "Gagné";
+                    hide();
+                }    
+            }
+        }
+        
+        document.getElementById("cjoueur").onclick = function(){
+            piocher('','cartejoueur',document.getElementById("valuecarte").value);
+        }
+        document.getElementById("ccroupier").onclick = function(){
+            piocher('','cartecroupier',document.getElementById("valuecarte").value);
+        }
+        
+        //Cache tout les bouttons sauf le restart
+        function hide(){
+                document.getElementById('button1').style.visibility = 'hidden';
+                document.getElementById('button2').style.visibility = 'hidden';
+        }
+    </script>
+    <div id="Title">Black Jack</div>
+    <div id="plateau">
+        <div id="cartecroupier"></div>
+        <div id="pointcroupier"></div>
+        <div id="cartejoueur"></div>
+        <div id="pointjoueur"></div>
+    </div>
+    <div id="menu">
+        <input id="button1" type="button" value="Carte!" onclick="piocher('','cartejoueur',Math.floor(Math.random() * (52*limite))+1)">
+        <input id="button2" type="button" value="Reste" onclick="reste()">
+        <input type="button" value="Restart" onclick="location.reload()">
+    </div>
+    <div id="perdu"></div>
+    <br>
+</body>
+</html>
